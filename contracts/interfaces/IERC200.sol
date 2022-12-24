@@ -2,6 +2,7 @@
 pragma solidity ^0.8.14;
 
 import {IERC200Receiver} from "./IERC200Receiver.sol";
+import {IERC200Metadata} from "./IERC200Metadata.sol";
 
 /**
 * @title IERC200.
@@ -10,7 +11,7 @@ import {IERC200Receiver} from "./IERC200Receiver.sol";
 *       Interface of the ERC200 contract.
 */
 
-interface IERC200 is IERC200Receiver {
+interface IERC200 is IERC200Metadata, IERC200Receiver {
     /**
     * @dev Emitted when `value` tokens of tokenID `id` are moved 
     *      from one account (`from`) to another (`to`).
