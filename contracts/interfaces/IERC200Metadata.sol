@@ -31,5 +31,5 @@ interface IERC200Metadata {
     ///         or exceed 255, the max of a uint8. 
     /// @param _id Token Id.
     /// @return string Decimal of tokenID `_id`.
-    function decimal(uint8 _id) external view returns (uint8);
+    function decimals(uint8 _id) external view returns (uint8);
 }
