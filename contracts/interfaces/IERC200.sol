@@ -39,6 +39,11 @@ interface IERC200 is IERC200Metadata, IERC200Receiver {
     );
 
     /**
+    * @dev Emitted when a new token is created.
+    */
+    event TokenCreation(uint8 id);
+
+    /**
     * @dev Returns the amount of tokens in existence for tokenID `_id`.
     *
     * @param _id Token id.

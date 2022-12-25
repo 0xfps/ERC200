@@ -15,7 +15,7 @@ import {Counter} from "./utils/Counter.sol";
 *       https://twitter.com/0xfps/status/1606564497975549952,
 *       is to create a contract capable of creating a batch of tokens
 *       making it possible for DAOs or Web3 organizations to have
-*       just one contract, creating and taking care of up to 10 different
+*       just one contract to create and take care of up to 10 different
 *       tokens.
 
 * @notice   This was written on Christmas, Merry Christmas <3 :).
@@ -27,5 +27,46 @@ IERC200,
 Context, 
 Counter 
 {
-    
+    struct Tokens {
+        bool _valid;
+        string _name;
+        string _symbol;
+        uint8 _decimals;
+        uint256 _totalSupply;
+    }
+
+    mapping(uint8 => Tokens) private tokens;
+    mapping(address => mapping(uint8 => uint256)) private balances;
+
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) {
+        Tokens memory newToken = Tokens(
+            true,
+            _name,
+            _symbol,
+            _decimals,
+            0
+        );
+
+        tokens[tokensCount] = newToken;
+
+        emit TokenCreation(tokensCount);
+        
+        _increment();
+    }
+
+    // function _mint(
+    //     address _to, 
+    //     uint8 _id, 
+    //     uint256 _amount
+    // ) internal {
+
+    // }
+
+    function _exists(uint8 _id) private view returns (bool) {
+        return tokens[_id]._valid;
+    }
 }
