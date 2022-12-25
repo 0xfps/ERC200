@@ -43,6 +43,26 @@ Counter
         string memory _symbol,
         uint8 _decimals
     ) {
+        _createToken(
+            _name,
+            _symbol,
+            _decimals
+        );
+    }
+
+    // function _mint(
+    //     address _to, 
+    //     uint8 _id, 
+    //     uint256 _amount
+    // ) internal {
+
+    // }
+    
+    function _createToken(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) internal {
         Tokens memory newToken = Tokens(
             true,
             _name,
@@ -57,14 +77,6 @@ Counter
         
         _increment();
     }
-
-    // function _mint(
-    //     address _to, 
-    //     uint8 _id, 
-    //     uint256 _amount
-    // ) internal {
-
-    // }
 
     function _exists(uint8 _id) private view returns (bool) {
         return tokens[_id]._valid;
