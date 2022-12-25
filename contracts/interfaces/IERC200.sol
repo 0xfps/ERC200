@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.14;
 
-import {IERC200Receiver} from "./IERC200Receiver.sol";
 import {IERC200Metadata} from "./IERC200Metadata.sol";
 
 /**
@@ -15,7 +14,7 @@ import {IERC200Metadata} from "./IERC200Metadata.sol";
 *           done from a place of fun.
 */
 
-interface IERC200 is IERC200Metadata, IERC200Receiver {
+interface IERC200 is IERC200Metadata {
     /**
     * @dev Emitted when `value` tokens of tokenID `id` are moved 
     *      from one account (`from`) to another (`to`).
@@ -82,6 +81,24 @@ interface IERC200 is IERC200Metadata, IERC200Receiver {
     ) external returns (bool);
 
     /**
+    * @dev  Sets an `_amount` of tokenId `_id` as the allowance of `_spender` 
+    *       over the caller's tokens.
+    *       Returns a boolean value indicating whether the operation succeeded.
+    *       Emits an {Approval} event.
+    *
+    * @param _spender   Address allowance is allocated to.
+    * @param _id        Token ID allocated.
+    * @param _amount    Amount of tokens in tokenID `_id` allocated.
+    * 
+    * @return bool Status of the operation.
+    */
+    function approve(
+        address _spender, 
+        uint8 _id, 
+        uint256 _amount
+    ) external returns (bool);
+
+    /**
     * @dev  Returns the remaining number of tokens of tokenId `_id`
     *       that `_spender` will be allowed to spend on behalf of 
     *       `owner` through {transferFrom}. This is
@@ -100,24 +117,6 @@ interface IERC200 is IERC200Metadata, IERC200Receiver {
         address _spender, 
         uint8 _id
     ) external view returns (uint256);
-
-    /**
-    * @dev  Sets an `_amount` of tokenId `_id` as the allowance of `_spender` 
-    *       over the caller's tokens.
-    *       Returns a boolean value indicating whether the operation succeeded.
-    *       Emits an {Approval} event.
-    *
-    * @param _spender   Address allowance is allocated to.
-    * @param _id        Token ID allocated.
-    * @param _amount    Amount of tokens in tokenID `_id` allocated.
-    * 
-    * @return bool Status of the operation.
-    */
-    function approve(
-        address _spender, 
-        uint8 _id, 
-        uint256 _amount
-    ) external returns (bool);
 
     /**
     * @dev  Moves `_amount` tokens of tokenId `_id` from `from` to `to` using the

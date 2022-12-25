@@ -2,7 +2,6 @@
 pragma solidity ^0.8.14;
 
 import {IERC200} from "./interfaces/IERC200.sol";
-import {IERC200Receiver} from "./interfaces/IERC200Receiver.sol";
 import {IERC200Metadata} from "./interfaces/IERC200Metadata.sol";
 
 import {Context} from "./utils/Context.sol";
@@ -25,7 +24,7 @@ import {Counter} from "./utils/Counter.sol";
 *           done from a place of fun.
 * @notice   Refer to [file] => {function()}.
 */
-abstract contract ERC200 is 
+contract ERC200 is 
 IERC200, 
 Context, 
 Counter 
@@ -44,6 +43,10 @@ Counter
     /// @dev    Mapping addresses to the token IDs they own and then
     ///         to balances.
     mapping(address => mapping(uint8 => uint256)) private balances;
+    /// @dev    Allowance mapping.
+    ///         mapping(owner => spender => id => amount);
+    mapping(address => mapping(address => mapping( uint8 => uint256))) private allowances;
+
 
     /**
     * @dev  On deployment, a new token [Parent Token, maybe] must be created.
@@ -109,22 +112,118 @@ Counter
     }
 
     /**
-    * @inheritdoc IERC200Receiver
+    * @inheritdoc IERC200
     */
-    function onERC200Received(
+    function balanceOf(address _account, uint8 _id) public view returns (uint256) {
+        require(_account != address(0), "Query for 0 address.");
+        require(_exists(_id), "Query for invalid token.");
+        return balances[_account][_id];
+    }
+
+    /**
+    * @inheritdoc IERC200
+    */
+    function transfer(
         address _to, 
         uint8 _id, 
-        uint256 _amount,
-        bytes memory _data
-    ) public virtual override returns(bytes4) {
-        // Delete these.
-        _to; _id; _amount; _data; // Unused.
-        // Delete these.
+        uint256 _amount
+    ) public returns (bool) {
+        require(_exists(_id), "Query for invalid token.");
+        require(_to != address(0), "Transfer to 0 address.");
+        require(_amount != 0, "0 Transfer.");
+        require(balances[msgSender()][_id] >= _amount, "Amount < Balance.");
 
-        // Your desired code here.
-        // The code here runs once this contract receives a token.
+        _transfer(
+            msgSender(),
+            _to, 
+            _id, 
+            _amount
+        );
 
-        return msg.sig;
+        emit Transfer(msgSender(), _to, _id, _amount);
+
+        return true;
+    }
+
+    function approve(
+        address _spender, 
+        uint8 _id, 
+        uint256 _amount
+    ) public returns (bool) {
+        require(_exists(_id), "Query for invalid token.");
+        require(_spender != address(0), "Approval to 0 address.");
+        require(_amount != 0, "0 Approval.");
+        require(balances[msgSender()][_id] >= _amount, "Amount < Balance.");
+
+        allowances[msgSender()][_spender][_id] = _amount;
+
+        emit Approval(msgSender(), _spender, _id, _amount);
+
+        return true;
+    }
+
+    function allowance(
+        address _owner, 
+        address _spender, 
+        uint8 _id
+    ) public view returns (uint256) {
+        require(_exists(_id), "Query for invalid token.");
+        return allowances[_owner][_spender][_id];
+    }
+
+    function transferFrom(
+        address _from, 
+        address _to, 
+        uint8 _id, 
+        uint256 _amount
+    ) external returns (bool) {
+        require(_exists(_id), "Query for invalid token.");
+        require(_amount != 0, "0 Transfer.");
+        require(_to != address(0), "Transfer to 0 address.");
+        require(allowance(_from, _to, _id) > _amount, "Allowance < Amount.");
+
+        allowances[_from][msgSender()][_id] -= _amount;
+
+        _transfer(_from, _to, _id, _amount);
+
+        return true;
+    }
+
+    function _transfer(
+        address _from,
+        address _to, 
+        uint8 _id, 
+        uint256 _amount
+    ) internal {
+        balances[_from][_id] -= _amount;
+        balances[_to][_id] += _amount;
+    }
+
+    function _mint(
+        address _to, 
+        uint8 _id, 
+        uint256 _amount
+    ) internal {
+        require(_exists(_id), "Query for invalid token.");
+        require(_to != address(0), "Mint to 0 address.");
+        require(_amount != 0, "0 Transfer.");
+
+        balances[_to][_id] += _amount;
+        tokens[_id].totalSupply += _amount;
+    }
+
+    function burn(
+        address _from, 
+        uint8 _id, 
+        uint256 _amount
+    ) internal {
+        require(_exists(_id), "Query for invalid token.");
+        require(_from != address(0), "Mint to 0 address.");
+        require(balances[_from][_id] >= _amount, "Amount > Balance.");
+        require(_amount != 0, "0 Transfer.");
+
+        balances[_from][_id] -= _amount;
+        tokens[_id].totalSupply -= _amount;
     }
     
     /**
