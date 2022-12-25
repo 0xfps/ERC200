@@ -16,7 +16,7 @@ jobs:
           python-version: '3.10'
       - run: pip install eth-brownie
       - run: npm install ganache
-      - run: brownie pm install OpenZeppelin/openzeppelin-contracts@4.8.0
+#       - run: brownie pm install OpenZeppelin/openzeppelin-contracts@4.8.0
 #       - run: brownie compile
 #       - run: brownie test
 # On this day, we shall know where the bug comes from.
