@@ -9,6 +9,10 @@ import {IERC200Metadata} from "./IERC200Metadata.sol";
 * @author Anthony (fps) https://github.com/0xfps.
 * @dev  Inspired by https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol.
 *       Interface of the ERC200 contract.
+
+* @notice   This was written on Christmas, Merry Christmas <3 :).
+* @notice   This contract is not a confirmed EIP, it is only a project
+*           done from a place of fun.
 */
 
 interface IERC200 is IERC200Metadata, IERC200Receiver {

@@ -6,6 +6,10 @@ pragma solidity ^0.8.14;
 * @author Anthony (fps) https://github.com/0xfps.
 * @dev  This contract interface is to be implemented by
 *       contracts that intend to receive tokens from an IERC200 contract.
+
+* @notice   This was written on Christmas, Merry Christmas <3 :).
+* @notice   This contract is not a confirmed EIP, it is only a project
+*           done from a place of fun.
 */
 interface IERC200Receiver {
     /**
