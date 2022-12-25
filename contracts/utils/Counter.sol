@@ -18,14 +18,17 @@ abstract contract Counter {
     ///         token id 1 can then be created when desired.
     uint8 tokensCount;
     
-    /// @dev Increment the `tokensCount` value by 1.
-    function _increment() internal {
+    /// @dev Checks to ensure that tokenCount doesn't exceed 10.
+    function _beforeIncrement() internal view {
         /// @dev    Ensure that the count of tokens is less than 9.
         ///         ID runs from 0 - 9, i.e, 10 tokens per contract.
         ///         So, when token id 9 is created, it is incremented to
         ///         10, and will be in check.
-        require(tokensCount + 1 <= 10, "ERC200: Token Limit Reached.");
-        
+        require(tokensCount < 10, "ERC200: Token Limit Reached.");
+    }
+
+    /// @dev Increment the `tokensCount` value by 1.
+    function _increment() internal {
         unchecked {
             /// @dev Increment token count.
             tokensCount += 1;
