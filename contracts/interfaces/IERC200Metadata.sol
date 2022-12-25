@@ -6,6 +6,10 @@ pragma solidity ^0.8.14;
 * @author Anthony (fps) https://github.com/0xfps.
 * @dev  This interface seeks to isolate only the metadata for
 *       the tokens created by an ERC200 contract.
+
+* @notice   This was written on Christmas, Merry Christmas <3 :).
+* @notice   This contract is not a confirmed EIP, it is only a project
+*           done from a place of fun.
 */
 interface IERC200Metadata {
     /// @dev Returns the number of tokens created by the contract.
@@ -22,7 +26,9 @@ interface IERC200Metadata {
     /// @return string Symbol of tokenID `_id`.
     function symbol(uint8 _id) external view returns (string memory);
     
-    /// @dev Returns the decimals of tokenID `_id`
+    /// @dev    Returns the decimals of tokenID `_id`
+    ///         Decimals are not expected to exceed 18, by convention,
+    ///         or exceed 255, the max of a uint8. 
     /// @param _id Token Id.
     /// @return string Decimal of tokenID `_id`.
     function decimal(uint8 _id) external view returns (uint8);
