@@ -39,10 +39,10 @@ Counter
     }
 
     /// @dev Mapping each token data to their unique ID.
-    mapping(uint8 => Tokens) private tokens;
+    mapping(uint8 => Tokens) public tokens;
     /// @dev    Mapping addresses to the token IDs they own and then
     ///         to balances.
-    mapping(address => mapping(uint8 => uint256)) private balances;
+    mapping(address => mapping(uint8 => uint256)) public balances;
     /// @dev    Allowance mapping.
     ///         mapping(owner => spender => id => amount);
     mapping(address => mapping(address => mapping( uint8 => uint256))) private allowances;
@@ -153,7 +153,7 @@ Counter
         require(_exists(_id), "Query for invalid token.");
         require(_spender != address(0), "Approval to 0 address.");
         require(_amount != 0, "0 Approval.");
-        require(balances[msgSender()][_id] >= _amount, "Amount < Balance.");
+        require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
 
         allowances[msgSender()][_spender][_id] = _amount;
 
@@ -176,7 +176,7 @@ Counter
         address _to, 
         uint8 _id, 
         uint256 _amount
-    ) external returns (bool) {
+    ) public returns (bool) {
         require(_exists(_id), "Query for invalid token.");
         require(_amount != 0, "0 Transfer.");
         require(_to != address(0), "Transfer to 0 address.");
@@ -203,7 +203,7 @@ Counter
         address _to, 
         uint8 _id, 
         uint256 _amount
-    ) internal {
+    ) public {
         require(_exists(_id), "Query for invalid token.");
         require(_to != address(0), "Mint to 0 address.");
         require(_amount != 0, "0 Transfer.");
@@ -213,16 +213,15 @@ Counter
     }
 
     function burn(
-        address _from, 
         uint8 _id, 
         uint256 _amount
-    ) internal {
+    ) public {
         require(_exists(_id), "Query for invalid token.");
-        require(_from != address(0), "Mint to 0 address.");
-        require(balances[_from][_id] >= _amount, "Amount > Balance.");
+        require(msgSender() != address(0), "Mint to 0 address.");
+        require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
         require(_amount != 0, "0 Transfer.");
 
-        balances[_from][_id] -= _amount;
+        balances[msgSender()][_id] -= _amount;
         tokens[_id].totalSupply -= _amount;
     }
     
@@ -242,7 +241,7 @@ Counter
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) internal {
+    ) public {
         /// @dev Refer to [utils/Counter.sol] => {_beforeIncrement()}.
         _beforeIncrement();
 
