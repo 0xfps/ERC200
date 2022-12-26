@@ -128,11 +128,14 @@ Counter
         uint8 _id, 
         uint256 _amount
     ) public returns (bool) {
+        /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
+        /// @dev Ensure that `_to` is not a zero address.
         require(_to != address(0), "Transfer to 0 address.");
+        /// @dev Ensure that a value of 0 is not transferred.
         require(_amount != 0, "0 Transfer.");
-        require(balances[msgSender()][_id] >= _amount, "Amount < Balance.");
 
+        /// @dev Transfer tokens.
         _transfer(
             msgSender(),
             _to, 
@@ -140,89 +143,162 @@ Counter
             _amount
         );
 
+        /// @dev Emit the {Trasnfer} event.
         emit Transfer(msgSender(), _to, _id, _amount);
 
+        /// @dev Return true.
         return true;
     }
 
+    /**
+    * @inheritdoc IERC200
+    */
     function approve(
         address _spender, 
         uint8 _id, 
         uint256 _amount
     ) public returns (bool) {
+        /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
+        /// @dev Ensure that `_spender` is not a zero address.
         require(_spender != address(0), "Approval to 0 address.");
+        /// @dev Ensure that a value of 0 is not approved.
         require(_amount != 0, "0 Approval.");
+        /// @dev Ensure that the balance of the sender is > the amount to be approved.
         require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
 
+        /// @dev Set allowance of `_spender` of token `_id` to the `_amount`.
         allowances[msgSender()][_spender][_id] = _amount;
 
+        /// @dev Emit the {Approval} event.
         emit Approval(msgSender(), _spender, _id, _amount);
 
+        /// @dev Return true.
         return true;
     }
 
+    /**
+    * @inheritdoc IERC200
+    */
     function allowance(
         address _owner, 
         address _spender, 
         uint8 _id
     ) public view returns (uint256) {
+        /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
+        /// @dev Return the allowance `_spender` can spend on `_owner`'s behalf.
         return allowances[_owner][_spender][_id];
     }
 
+    /**
+    * @inheritdoc IERC200
+    */
     function transferFrom(
         address _from, 
         address _to, 
         uint8 _id, 
         uint256 _amount
     ) public returns (bool) {
+        /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
+        /// @dev Ensure that a value of 0 is not transferred.
         require(_amount != 0, "0 Transfer.");
+        /// @dev Ensure that `_from` is not a zero address.
+        require(_from != address(0), "Transfer to 0 address.");
+        /// @dev Ensure that `_to` is not a zero address.
         require(_to != address(0), "Transfer to 0 address.");
+        /// @dev Ensure that the allowance of `msgSender()` is > the amount to be sent.
         require(allowance(_from, _to, _id) > _amount, "Allowance < Amount.");
 
+        /// @dev Deduct from `msgSender`'s allowance.
         allowances[_from][msgSender()][_id] -= _amount;
 
+        /// @dev Transfer to `_to`.
         _transfer(_from, _to, _id, _amount);
 
+        /// @dev Return true.
         return true;
     }
 
+    /**
+    * @dev  Transfers tokens between two addresses by 
+    *       adding to the token balances of `_to` and subtracting
+    *       from token balances of `_from` on token ID.
+    *
+    * @param _from      Address sending tokens.
+    * @param _to        Address receiving `_amount` tokens.
+    * @param _id        Token ID to move.
+    * @param _amount    Number of tokens to move to `to`.
+    */
     function _transfer(
         address _from,
         address _to, 
         uint8 _id, 
         uint256 _amount
     ) internal {
+        /// @dev Ensure that the balance of the sender is > the amount to be sent.
+        require(balances[_from][_id] >= _amount, "Amount < Balance.");
+        /// @dev Subtract from token balance of `_from`.
         balances[_from][_id] -= _amount;
+        /// @dev Add to token balances of `_to`.
         balances[_to][_id] += _amount;
     }
 
+    /**
+    * @dev  Adds to the total supply of an existing tokenID
+    *       by adding an amount to an existing address' balance.
+    *
+    * @param _to        Address receiving `_amount` tokens.
+    * @param _id        Token ID to mint.
+    * @param _amount    Number of tokens to mint to `to`.
+    */
     function _mint(
         address _to, 
         uint8 _id, 
         uint256 _amount
     ) public {
-        require(_exists(_id), "Query for invalid token.");
+        /// @dev Ensure that the id is in existence.
+        require(_exists(_id), "Mint for invalid token.");
+        /// @dev Ensure that `_to` is not a zero address.
         require(_to != address(0), "Mint to 0 address.");
+        /// @dev Ensure that a value of 0 is not minted.
         require(_amount != 0, "0 Transfer.");
 
+        /// @dev Add to the balances of `_to` for tokenID.
         balances[_to][_id] += _amount;
+        /// @dev Increment the totalSypply of token ID.
         tokens[_id].totalSupply += _amount;
+
+        /// @dev Emit the {Trasnfer} event.
+        emit Transfer(address(0), _to, _id, _amount);
     }
 
+    /**
+    * @dev  Subtracts from the total supply of an existing tokenID
+    *       by removing an amount from an existing address' balance.
+    *
+    * @param _id        Token ID to burn.
+    * @param _amount    Number of tokens to burn from `msgSender`.
+    */
     function burn(
         uint8 _id, 
         uint256 _amount
     ) public {
-        require(_exists(_id), "Query for invalid token.");
-        require(msgSender() != address(0), "Mint to 0 address.");
+        /// @dev Ensure that the id is in existence.
+        require(_exists(_id), "Burn for invalid token.");
+        /// @dev Ensure that `msgSender` is not a zero address.
+        require(msgSender() != address(0), "Burn from 0 address.");
+        /// @dev Ensure that the balance of msgSender is > _amount.
         require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
-        require(_amount != 0, "0 Transfer.");
+        /// @dev Ensure that value burnt is not 0.
+        require(_amount != 0, "0 Burn.");
 
         balances[msgSender()][_id] -= _amount;
         tokens[_id].totalSupply -= _amount;
+
+        /// @dev Emit the {Trasnfer} event.
+        emit Transfer(msgSender(), address(0), _id, _amount);
     }
     
     /**
