@@ -76,7 +76,7 @@ Counter
     * @inheritdoc IERC200Metadata
     */
     function tokensCreated() public view returns (uint8) {
-        return tokensCount;
+        return Counter.tokensCount;
     }
 
     /**
