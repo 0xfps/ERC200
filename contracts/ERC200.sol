@@ -15,14 +15,17 @@ import {Counter} from "./utils/Counter.sol";
 *       https://twitter.com/0xfps/status/1593336226349780993 and
 *       https://twitter.com/0xfps/status/1606564497975549952,
 *       is to create a contract capable of creating a batch of tokens
-*       making it possible for DAOs or Web3 organizations to have
+*       making it possible for individuals, DAOs or Web3 organizations to have
 *       just one contract to create and take care of up to 10 different
 *       tokens.
-
+*
 * @notice   This was written on Christmas, Merry Christmas <3 :).
 * @notice   This contract is not a confirmed EIP, it is only a project
 *           done from a place of fun.
 * @notice   Refer to [file] => {function()}.
+* @notice   The _mint function, _createToken function, tokens mapping
+*           and balances mapping, and allowance mapping are all public
+*           until testings are complete.
 */
 contract ERC200 is 
 IERC200, 
@@ -41,30 +44,30 @@ Counter
     /// @dev Mapping each token data to their unique ID.
     mapping(uint8 => Tokens) public tokens;
     /// @dev    Mapping addresses to the token IDs they own and then
-    ///         to balances.
+    ///         to their balances on the token.
     mapping(address => mapping(uint8 => uint256)) public balances;
     /// @dev    Allowance mapping.
     ///         mapping(owner => spender => id => amount);
-    mapping(address => mapping(address => mapping( uint8 => uint256))) private allowances;
+    mapping(address => mapping(address => mapping( uint8 => uint256))) public allowances;
 
 
     /**
-    * @dev  On deployment, a new token [Parent Token, maybe] must be created.
-    *       Some callers will not need to set a `_totalSupply` value.
-    *       The `_mint()` function to do the work.
+    * @dev  On deployment, a new token [Parent Token, maybe] is created.
+    *       Callers will not need to set a `_totalSupply` value.
+    *       The `_mint()` function to do that work.
     *
     * @param _name      Name of parent token.
     * @param _symbol    Symbol of the parent token.
     * @param _decimals  Decimals for the parent token.
     *                   This is to allow flexibility as different tokens
-    *                   may contain different decimals.
+    *                   may be created to contain different decimals.
     */
     constructor(
         string memory _name,
         string memory _symbol,
         uint8 _decimals
     ) {
-        /// @dev Create token.
+        /// @dev Create initial token, id = 0.
         _createToken(
             _name,
             _symbol,
@@ -209,7 +212,7 @@ Counter
         /// @dev Ensure that `_to` is not a zero address.
         require(_to != address(0), "Transfer to 0 address.");
         /// @dev Ensure that the allowance of `msgSender()` is > the amount to be sent.
-        require(allowance(_from, _to, _id) > _amount, "Allowance < Amount.");
+        require(allowance(_from, msgSender(), _id) >= _amount, "Allowance < Amount.");
 
         /// @dev Deduct from `msgSender`'s allowance.
         allowances[_from][msgSender()][_id] -= _amount;
@@ -222,9 +225,38 @@ Counter
     }
 
     /**
+    * @dev  Subtracts from the total supply of an existing tokenID
+    *       by removing an amount from an existing address' balance.
+    *
+    * @param _id        Token ID to burn.
+    * @param _amount    Number of tokens to burn from `msgSender`.
+    */
+    function burn(
+        uint8 _id, 
+        uint256 _amount
+    ) public {
+        /// @dev Ensure that the id is in existence.
+        require(_exists(_id), "Burn for invalid token.");
+        /// @dev Ensure that `msgSender` is not a zero address.
+        require(msgSender() != address(0), "Burn from 0 address.");
+        /// @dev Ensure that the balance of msgSender is > _amount.
+        require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
+        /// @dev Ensure that value burnt is not 0.
+        require(_amount != 0, "0 Burn.");
+
+        /// @dev Subtract from caller's balance.
+        balances[msgSender()][_id] -= _amount;
+        /// @dev Subtract from token ID's total supply.
+        tokens[_id].totalSupply -= _amount;
+
+        /// @dev Emit the {Trasnfer} event.
+        emit Transfer(msgSender(), address(0), _id, _amount);
+    }
+
+    /**
     * @dev  Transfers tokens between two addresses by 
     *       adding to the token balances of `_to` and subtracting
-    *       from token balances of `_from` on token ID.
+    *       from token balances of `_from` on token ID `_id`.
     *
     * @param _from      Address sending tokens.
     * @param _to        Address receiving `_amount` tokens.
@@ -237,7 +269,7 @@ Counter
         uint8 _id, 
         uint256 _amount
     ) internal {
-        /// @dev Ensure that the balance of the sender is > the amount to be sent.
+        /// @dev Ensure that the balance of the `_from` is > the amount to be sent.
         require(balances[_from][_id] >= _amount, "Amount < Balance.");
         /// @dev Subtract from token balance of `_from`.
         balances[_from][_id] -= _amount;
@@ -263,7 +295,7 @@ Counter
         /// @dev Ensure that `_to` is not a zero address.
         require(_to != address(0), "Mint to 0 address.");
         /// @dev Ensure that a value of 0 is not minted.
-        require(_amount != 0, "0 Transfer.");
+        require(_amount != 0, "0 Mint.");
 
         /// @dev Add to the balances of `_to` for tokenID.
         balances[_to][_id] += _amount;
@@ -273,39 +305,13 @@ Counter
         /// @dev Emit the {Trasnfer} event.
         emit Transfer(address(0), _to, _id, _amount);
     }
-
-    /**
-    * @dev  Subtracts from the total supply of an existing tokenID
-    *       by removing an amount from an existing address' balance.
-    *
-    * @param _id        Token ID to burn.
-    * @param _amount    Number of tokens to burn from `msgSender`.
-    */
-    function burn(
-        uint8 _id, 
-        uint256 _amount
-    ) public {
-        /// @dev Ensure that the id is in existence.
-        require(_exists(_id), "Burn for invalid token.");
-        /// @dev Ensure that `msgSender` is not a zero address.
-        require(msgSender() != address(0), "Burn from 0 address.");
-        /// @dev Ensure that the balance of msgSender is > _amount.
-        require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
-        /// @dev Ensure that value burnt is not 0.
-        require(_amount != 0, "0 Burn.");
-
-        balances[msgSender()][_id] -= _amount;
-        tokens[_id].totalSupply -= _amount;
-
-        /// @dev Emit the {Trasnfer} event.
-        emit Transfer(msgSender(), address(0), _id, _amount);
-    }
     
     /**
     * @dev  This function creates a new token when called, on the
     *       condition that the `tokenCount` doesn't exceed the limit.
     *       The token data for a newly created token are stored in the
     *       `Tokens` struct.
+    *       Callers do no need to set a totalSupply.
     *       The `_mint()` function to do the work.
     *       This emits the {TokenCreation} event.
     *
@@ -321,7 +327,7 @@ Counter
         /// @dev Refer to [utils/Counter.sol] => {_beforeIncrement()}.
         _beforeIncrement();
 
-        /// @dev Create a new token to memory.
+        /// @dev Copy new token to memory.
         Tokens memory newToken = Tokens(
             true,
             _name,
