@@ -79,7 +79,8 @@ Counter
     * @inheritdoc IERC200Metadata
     */
     function tokensCreated() public view returns (uint8) {
-        return Counter.tokensCount;
+        /// @dev Reference [Counter] => {_count}.
+        return _count();
     }
 
     /**
@@ -131,6 +132,8 @@ Counter
         uint8 _id, 
         uint256 _amount
     ) public returns (bool) {
+        /// @dev Get caller address.
+        address owner = msgSender();
         /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
         /// @dev Ensure that `_to` is not a zero address.
@@ -140,14 +143,14 @@ Counter
 
         /// @dev Transfer tokens.
         _transfer(
-            msgSender(),
+            owner,
             _to, 
             _id, 
             _amount
         );
 
         /// @dev Emit the {Trasnfer} event.
-        emit Transfer(msgSender(), _to, _id, _amount);
+        emit Transfer(owner, _to, _id, _amount);
 
         /// @dev Return true.
         return true;
@@ -161,6 +164,8 @@ Counter
         uint8 _id, 
         uint256 _amount
     ) public returns (bool) {
+        /// @dev Get caller address.
+        address owner = msgSender();
         /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
         /// @dev Ensure that `_spender` is not a zero address.
@@ -168,13 +173,13 @@ Counter
         /// @dev Ensure that a value of 0 is not approved.
         require(_amount != 0, "0 Approval.");
         /// @dev Ensure that the balance of the sender is > the amount to be approved.
-        require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
+        require(balances[owner][_id] >= _amount, "Amount > Balance.");
 
         /// @dev Set allowance of `_spender` of token `_id` to the `_amount`.
-        allowances[msgSender()][_spender][_id] = _amount;
+        allowances[owner][_spender][_id] = _amount;
 
         /// @dev Emit the {Approval} event.
-        emit Approval(msgSender(), _spender, _id, _amount);
+        emit Approval(owner, _spender, _id, _amount);
 
         /// @dev Return true.
         return true;
@@ -203,6 +208,8 @@ Counter
         uint8 _id, 
         uint256 _amount
     ) public returns (bool) {
+        /// @dev Get caller address.
+        address spender = msgSender();
         /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Query for invalid token.");
         /// @dev Ensure that a value of 0 is not transferred.
@@ -212,10 +219,10 @@ Counter
         /// @dev Ensure that `_to` is not a zero address.
         require(_to != address(0), "Transfer to 0 address.");
         /// @dev Ensure that the allowance of `msgSender()` is > the amount to be sent.
-        require(allowance(_from, msgSender(), _id) >= _amount, "Allowance < Amount.");
+        require(allowance(_from, spender, _id) >= _amount, "Allowance < Amount.");
 
         /// @dev Deduct from `msgSender`'s allowance.
-        allowances[_from][msgSender()][_id] -= _amount;
+        allowances[_from][spender][_id] -= _amount;
 
         /// @dev Transfer to `_to`.
         _transfer(_from, _to, _id, _amount);
@@ -235,22 +242,24 @@ Counter
         uint8 _id, 
         uint256 _amount
     ) public {
+        /// @dev Get caller address.
+        address owner = msgSender();
         /// @dev Ensure that the id is in existence.
         require(_exists(_id), "Burn for invalid token.");
         /// @dev Ensure that `msgSender` is not a zero address.
-        require(msgSender() != address(0), "Burn from 0 address.");
+        require(owner != address(0), "Burn from 0 address.");
         /// @dev Ensure that the balance of msgSender is > _amount.
-        require(balances[msgSender()][_id] >= _amount, "Amount > Balance.");
+        require(balances[owner][_id] >= _amount, "Amount > Balance.");
         /// @dev Ensure that value burnt is not 0.
         require(_amount != 0, "0 Burn.");
 
         /// @dev Subtract from caller's balance.
-        balances[msgSender()][_id] -= _amount;
+        balances[owner][_id] -= _amount;
         /// @dev Subtract from token ID's total supply.
         tokens[_id].totalSupply -= _amount;
 
         /// @dev Emit the {Trasnfer} event.
-        emit Transfer(msgSender(), address(0), _id, _amount);
+        emit Transfer(owner, address(0), _id, _amount);
     }
 
     /**
