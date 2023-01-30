@@ -4,6 +4,7 @@ pragma solidity ^0.8.14;
 /**
 * @title Counter.
 * @author Anthony (fps) https://github.com/0xfps.
+* @author txcc https://github.com/zeroth-oc.
 * @dev  This contract keeps count of all tokens creaeted by
 *       the contract.
 

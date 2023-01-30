@@ -27,7 +27,7 @@ import {Counter} from "./utils/Counter.sol";
 *           and balances mapping, and allowance mapping are all public
 *           until testings are complete.
 */
-contract ERC200 is 
+contract OldERC200 is 
 IERC200, 
 Context, 
 Counter 

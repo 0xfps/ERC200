@@ -6,6 +6,7 @@ import {IERC200Metadata} from "./IERC200Metadata.sol";
 /**
 * @title IERC200.
 * @author Anthony (fps) https://github.com/0xfps.
+* @author txcc https://github.com/zeroth-oc.
 * @dev  Inspired by https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol.
 *       Interface of the ERC200 contract.
 
@@ -41,6 +42,21 @@ interface IERC200 is IERC200Metadata {
     * @dev Emitted when a new token is created.
     */
     event TokenCreation(uint8 id);
+
+    /// @dev Called if the token Id is inexistent.
+    error InexistentToken();
+    /// @dev Called if the sender or receiver is a zero address.
+    error ZeroAddress();
+    /// @dev Called if the caller sends 0 amount of tokens.
+    error ZeroTokenTransfer();
+    /// @dev Called if the token balance of the caller is lower than the amount to be sent.
+    error LowBalance();
+    /// @dev Called is the allowance to be sent via `transferFrom` is higher than the approved allowance. 
+    error LowAllowance();
+    /// @dev Called if the amount to be deducted from the allowance is greater than the existing allowance.
+    error AllowanceLowerThanDeductable();
+    /// @dev Called if the allowance after increment is greater than caller's balance.
+    error BalanceLowerThanApprovable();
 
     /**
     * @dev Returns the amount of tokens in existence for tokenID `_id`.

@@ -4,6 +4,9 @@ pragma solidity ^0.8.14;
 /**
 * @title IERC200Metadata
 * @author Anthony (fps) https://github.com/0xfps.
+* @author txcc https://github.com/zeroth-oc.
+* @dev  This contract interface was inspired by OpenZeppelin 
+*       [https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/extensions/IERC20Metadata.sol].
 * @dev  This interface seeks to isolate only the metadata for
 *       the tokens created by an ERC200 contract.
 
@@ -26,10 +29,8 @@ interface IERC200Metadata {
     /// @return string Symbol of tokenID `_id`.
     function symbol(uint8 _id) external view returns (string memory);
     
-    /// @dev    Returns the decimals of tokenID `_id`
-    ///         Decimals are not expected to exceed 18, by convention,
-    ///         or exceed 255, the max of a uint8. 
-    /// @param _id Token Id.
-    /// @return string Decimal of tokenID `_id`.
-    function decimals(uint8 _id) external view returns (uint8);
+    /// @dev    Returns the decimals of all tokens.
+    ///         For ease, all token decimals are set to 9.
+    /// @return uint8 number of decimals.
+    function decimals() external view returns (uint8);
 }
