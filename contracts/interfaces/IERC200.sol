@@ -53,10 +53,6 @@ interface IERC200 is IERC200Metadata {
     error LowBalance();
     /// @dev Called is the allowance to be sent via `transferFrom` is higher than the approved allowance. 
     error LowAllowance();
-    /// @dev Called if the amount to be deducted from the allowance is greater than the existing allowance.
-    error AllowanceLowerThanDeductable();
-    /// @dev Called if the allowance after increment is greater than caller's balance.
-    error BalanceLowerThanApprovable();
 
     /**
     * @dev Returns the amount of tokens in existence for tokenID `_id`.

@@ -272,7 +272,7 @@ Counter
         address _to, 
         uint8 _id, 
         uint256 _amount
-    ) public {
+    ) internal {
         /// @dev Ensure that the id is in existence.
         if (!_exists(_id)) revert InexistentToken();
         /// @dev Ensure that `_to` is not a zero address.
@@ -304,7 +304,7 @@ Counter
     function _createToken(
         string memory _name,
         string memory _symbol
-    ) public {
+    ) internal {
         /// @dev Refer to [utils/Counter.sol] => {_beforeIncrement()}.
         _beforeIncrement();
 
