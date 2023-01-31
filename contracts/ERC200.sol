@@ -272,7 +272,7 @@ Counter
         address _to, 
         uint8 _id, 
         uint256 _amount
-    ) internal {
+    ) public {
         /// @dev Ensure that the id is in existence.
         if (!_exists(_id)) revert InexistentToken();
         /// @dev Ensure that `_to` is not a zero address.
