@@ -18,6 +18,9 @@ abstract contract Counter {
     ///         On deployment, token id 0 is created and it is incremented
     ///         token id 1 can then be created when desired.
     uint8 tokensCount;
+
+    /// @dev Reverts if the 9 token limit is reached.
+    error TokenLimitReached();
     
     /// @dev Checks to ensure that tokenCount doesn't exceed 10.
     function _beforeIncrement() internal view {
@@ -25,7 +28,7 @@ abstract contract Counter {
         ///         ID runs from 0 - 9, i.e, 10 tokens per contract.
         ///         So, when token id 9 is created, it is incremented to
         ///         10, and will be in check.
-        require(tokensCount < 10, "ERC200: Token Limit Reached.");
+        if (tokensCount >= 9) revert TokenLimitReached();
     }
 
     /// @dev Increment the `tokensCount` value by 1.
