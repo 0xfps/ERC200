@@ -32,4 +32,21 @@ abstract contract ERC200 is
 IERC200, 
 Context, 
 Counter 
-{}
+{
+    /// @dev Data for each created token.
+    struct Tokens {
+        bool valid;
+        string name;
+        string symbol;
+        uint256 totalSupply;
+    }
+
+    /// @dev Mapping each token data to their unique ID.
+    mapping(uint8 => Tokens) public tokens;
+    /// @dev    Mapping addresses to the token IDs they own and then
+    ///         to their balances on the token.
+    mapping(address => mapping(uint8 => uint256)) public balances;
+    /// @dev    Allowance mapping.
+    ///         mapping(owner => spender => id => amount);
+    mapping(address => mapping(address => mapping( uint8 => uint256))) public allowances;
+}
